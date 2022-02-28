@@ -96,10 +96,6 @@ app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
     return user.username === request.user.username
   })
 
-  if (userIdx === -1) return response.status(404).json({
-    error: 'Mensagem do erro'
-  })
-
   const todoIdx = users[userIdx].todos.findIndex(todo=> {
     return todo.id === id
   })
