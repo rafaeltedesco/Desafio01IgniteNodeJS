@@ -15,7 +15,7 @@ function checksExistsUserAccount(request, response, next) {
   const foundUser = users.find(user=> user.username === username)
   
   if (!foundUser) response.status(404).json({
-    error: 'Mensagem do erro'
+    error: 'User not found'
   })
   
   request.user = foundUser
@@ -26,14 +26,14 @@ app.post('/users', (request, response) => {
   const { name, username } = request.body
   if (!name && !username) {
     return response.status(400).json({
-      error: 'Mensagem do erro'
+      error: 'Invalid data for user'
     })
   }
 
   const hasUser = users.some(user=> user.username === username)
   if (hasUser) {
     return response.status(400).json({
-      error: 'Mensagem do erro'
+      error: 'User already exists'
     })
   }
   const newUser = {
@@ -79,7 +79,7 @@ app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
 
   const todo = user.todos.find(todo => todo.id === id)
   if (!todo) return response.status(404).json({
-    error: 'Mensagem do erro'
+    error: 'Todo Not found'
   })
   todo.title = title
   todo.deadline = new Date(deadline)
@@ -88,25 +88,20 @@ app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
 });
 
 app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
+  const { user } = request
   const { id } = request.params
 
-  const userIdx = users.findIndex(user=> {
-    return user.username === request.user.username
-  })
+  const todo = user.todos.find(todo=> todo.id === id)
 
-  const todoIdx = users[userIdx].todos.findIndex(todo=> {
-    return todo.id === id
-  })
-
-  if (todoIdx === -1) {
+  if (!todo) {
     return response.status(404).json({
-      error: 'Mensagem do erro'
+      error: 'Todo not found'
     })
   }
   
-  users[userIdx].todos[todoIdx].done = true
+  todo.done = true
 
-  return response.status(200).json(users[userIdx].todos[todoIdx])
+  return response.status(200).json(todo)
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
