@@ -71,22 +71,20 @@ app.post('/todos', checksExistsUserAccount, (request, response) => {
 });
 
 app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
+  const { user } = request
   const {
     title, deadline
   } = request.body
-
   const { id } = request.params
 
-  const userIdx = users.findIndex(user=> user.username === request.user.username)
-  let todoIdx = users[userIdx].todos.findIndex(todo=> todo.id === id)
-
-  if (todoIdx === -1) return response.status(404).json({
+  const todo = user.todos.find(todo => todo.id === id)
+  if (!todo) return response.status(404).json({
     error: 'Mensagem do erro'
   })
-
-  users[userIdx].todos[todoIdx] = {...users[userIdx].todos[todoIdx], title, deadline}
+  todo.title = title
+  todo.deadline = new Date(deadline)
   
-  return response.status(200).json(users[userIdx].todos[todoIdx])
+  return response.status(200).json(todo)
 });
 
 app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
