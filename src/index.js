@@ -105,15 +105,11 @@ app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
+  const { user } = request
   const { id } = request.params
 
-  const userIdx = users.findIndex(user => {
-    return user.username === request.user.username
-  })
-
-  const todoIdx = users[userIdx].todos.findIndex(todo=> {
-    return todo.id === id
-  })
+  
+  const todoIdx = user.todos.findIndex(todo=> todo.id === id)
 
   if (todoIdx === -1) {
     return response.status(404).json({
@@ -121,7 +117,7 @@ app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
     })
   }
 
-  users[userIdx].todos.splice(todoIdx, 1)
+  user.todos.splice(todoIdx, 1)
 
   return response.status(204).json()
 
